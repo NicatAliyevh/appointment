@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users/me/appointments")
@@ -29,7 +28,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponseDto> getAppointmentById(@PathVariable UUID appointmentId) {
+    public ResponseEntity<AppointmentResponseDto> getAppointmentById(@PathVariable String appointmentId) {
         return new ResponseEntity<>(appointmentService.getAppointmentById(appointmentId), HttpStatus.OK);
     }
 
@@ -39,7 +38,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponseDto> updateAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto, @PathVariable UUID appointmentId) {
+    public ResponseEntity<AppointmentResponseDto> updateAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto, @PathVariable String appointmentId) {
         return new ResponseEntity<>(appointmentService.updateAppointment(appointmentId, appointmentRequestDto), HttpStatus.OK);
     }
 }

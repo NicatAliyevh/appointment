@@ -17,5 +17,5 @@ public class ErrorResponse {
     String message;
     String path;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    LocalDateTime timeStamp;
+    LocalDateTime timestamp;
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import static nijat.project.appointment.utils.common.UUIDUtils.parse;
 
 @Service
 @RequiredArgsConstructor
@@ -36,17 +37,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponseDto getAppointmentById(UUID appointmentId) {
-        AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId).orElseThrow(
+    public AppointmentResponseDto getAppointmentById(String appointmentId) {
+        UUID id = parse(appointmentId);
+
+        AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("Appointment with id: " + appointmentId + " not found")
         );
         return mapToDto(appointmentEntity);
     }
 
     @Override
-    public AppointmentResponseDto updateAppointment(UUID appointmentId, AppointmentRequestDto appointmentRequestDto) {
-        AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId).orElseThrow(
-                ()->new ResourceNotFoundException("Appointment with id: " + appointmentId + " not found"));
+    public AppointmentResponseDto updateAppointment(String appointmentId, AppointmentRequestDto appointmentRequestDto) {
+        UUID id = parse(appointmentId);
+
+        AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Appointment with id: " + id + " not found"));
 
         appointmentEntity.setDoctorId(appointmentRequestDto.getDoctorId());
         appointmentEntity.setPatientId(appointmentRequestDto.getPatientId());
@@ -55,13 +60,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointmentEntity);
 
         return AppointmentResponseDto.builder()
-            .id(appointmentId)
-            .patientId(appointmentRequestDto.getPatientId())
-            .doctorId(appointmentRequestDto.getDoctorId())
-            .appointmentDate(appointmentRequestDto.getAppointmentDate())
-            .appointmentTime(appointmentRequestDto.getAppointmentTime())
-            .status(appointmentEntity.getStatus())
-            .build();
+                .id(id)
+                .patientId(appointmentRequestDto.getPatientId())
+                .doctorId(appointmentRequestDto.getDoctorId())
+                .appointmentDate(appointmentRequestDto.getAppointmentDate())
+                .appointmentTime(appointmentRequestDto.getAppointmentTime())
+                .status(appointmentEntity.getStatus())
+                .build();
     }
 
     public AppointmentResponseDto mapToDto(AppointmentEntity appointmentEntity) {

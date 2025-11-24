@@ -3,6 +3,7 @@ package nijat.project.appointment.model.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -30,7 +31,7 @@ import java.util.UUID;
 @Builder
 public class AppointmentEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
     @Column(name = "doctor_id", nullable = false)

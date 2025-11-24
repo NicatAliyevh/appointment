@@ -1,5 +1,6 @@
 package nijat.project.appointment.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -11,11 +12,12 @@ import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonPropertyOrder({ "id", "doctorId", "patientId", "appointmentDate", "appointmentTime", "status" })
 @Builder
 public class AppointmentResponseDto {
     UUID id;
-    UUID patientId;
     UUID doctorId;
+    UUID patientId;
     LocalDate appointmentDate;
     LocalTime appointmentTime;
     AppointmentStatus status;

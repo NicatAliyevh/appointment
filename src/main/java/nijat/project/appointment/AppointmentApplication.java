@@ -8,6 +8,8 @@ public class AppointmentApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AppointmentApplication.class, args);
+		//System.out.println(System.getenv().get("JWT_SECRET"));
+//		System.out.println(System.getenv().get("JWT_SECRET_KEY"));
 	}
 
 }

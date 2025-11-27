@@ -26,7 +26,7 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: password
-                  type: VARCHAR(40)
+                  type: VARCHAR(80)
                   constraints:
                     nullable: false
               - column:

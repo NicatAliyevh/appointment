@@ -11,9 +11,9 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Data
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonPropertyOrder({ "id", "doctorId", "patientId", "appointmentDate", "appointmentTime", "status" })
-@Builder
 public class AppointmentResponseDto {
     UUID id;
     UUID doctorId;

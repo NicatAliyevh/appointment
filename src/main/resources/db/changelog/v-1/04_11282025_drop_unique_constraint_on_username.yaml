@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04_11282025_drop_unique_constraint_on_username
+      author: Nijat Alizada
+      changes:
+        - dropUniqueConstraint:
+            constraintName: users_username_key
+            tableName: users

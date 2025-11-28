@@ -4,6 +4,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,7 +38,6 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     @NotNull
-    @Column(unique = true)
     private String username;
     @NotNull
     @Column(unique = true)
@@ -51,6 +52,7 @@ public class UserEntity {
     Instant updatedAt;
     @Builder.Default
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "user_role")
     private UserRole userRole =  UserRole.PATIENT;
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)

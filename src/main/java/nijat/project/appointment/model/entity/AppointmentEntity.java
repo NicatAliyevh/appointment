@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,10 +36,6 @@ public class AppointmentEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-    @Column(name = "doctor_id", nullable = false)
-    UUID doctorId;
-    @Column(name = "patient_id", nullable = false)
-    UUID patientId;
     @Column(name = "appointment_date", nullable = false)
     LocalDate appointmentDate;
     @Column(name = "appointment_time", nullable = false)
@@ -51,4 +49,10 @@ public class AppointmentEntity {
     @Column(name = "updated_at", nullable = false)
     @CreationTimestamp
     Instant updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
+    UserEntity patient;
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    UserEntity doctor;
 }

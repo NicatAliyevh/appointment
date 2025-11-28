@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03_11282025_add_foreign_keys_to_appointments_table
+      author: Nijat Alizada
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: appointments
+            baseColumnNames: doctor_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_appointments_doctor_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: appointments
+            baseColumnNames: patient_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_appointments_patient_id
+            onDelete: CASCADE

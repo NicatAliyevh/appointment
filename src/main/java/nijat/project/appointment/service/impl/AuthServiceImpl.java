@@ -30,13 +30,14 @@ public class AuthServiceImpl implements AuthService {
     public SuccessResponseDto<UserAuthResponseDto> register(UserRegisterRequestDto userRegisterRequestDto) {
         if(userRepository.findByEmail(userRegisterRequestDto.getEmail()).isPresent()){
             System.out.println("Email exists: " + userRegisterRequestDto.getEmail());
-            throw new EmailAlreadyExistsException("Email already exists.");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         var user = UserEntity.builder()
                 .email(userRegisterRequestDto.getEmail())
                 .username(userRegisterRequestDto.getUsername())
                 .password(bCryptPasswordEncoder.encode(userRegisterRequestDto.getPassword()))
+                .userRole(userRegisterRequestDto.getRole())
                 .build();
         userRepository.save(user);
 
@@ -55,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SuccessResponseDto<UserAuthResponseDto> login(UserLoginRequestDto userLoginRequestDto) {
         UserEntity user = userRepository.findByEmail(userLoginRequestDto.getEmail()).orElseThrow(
-                () -> new InvalidCredentialsException("Email or password is invalid.")
+                () -> new InvalidCredentialsException("Email or password is invalid")
         );
 
         try{
@@ -67,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
         } catch (Exception e) {
-            throw new InvalidCredentialsException("Email or password is invalid.");
+            throw new InvalidCredentialsException("Email or password is invalid");
         }
 
         var userDetails = User.withUsername(user.getId().toString())

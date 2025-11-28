@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.model.dto.request.AppointmentRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
+import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -23,22 +25,26 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @GetMapping
-    public ResponseEntity<List<AppointmentResponseDto>> getAppointments() {
-        return new ResponseEntity<>(appointmentService.getAppointments(),  HttpStatus.OK);
+    public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAppointments(Principal principal) {
+        return new ResponseEntity<>(appointmentService.getAppointments(principal.getName()),  HttpStatus.OK);
     }
 
     @GetMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponseDto> getAppointmentById(@PathVariable String appointmentId) {
-        return new ResponseEntity<>(appointmentService.getAppointmentById(appointmentId), HttpStatus.OK);
+    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> getAppointmentById(@PathVariable String appointmentId,
+                                                                                         Principal principal) {
+        return new ResponseEntity<>(appointmentService.getAppointmentById(appointmentId, principal.getName()), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<AppointmentResponseDto> createAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
-        return new ResponseEntity<>(appointmentService.createAppointment(appointmentRequestDto), HttpStatus.CREATED);
+    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> createAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto,
+                                                                                        Principal principal) {
+        return new ResponseEntity<>(appointmentService.createAppointment(appointmentRequestDto, principal.getName()), HttpStatus.CREATED);
     }
 
     @PutMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponseDto> updateAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto, @PathVariable String appointmentId) {
-        return new ResponseEntity<>(appointmentService.updateAppointment(appointmentId, appointmentRequestDto), HttpStatus.OK);
+    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> updateAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto,
+                                                                                        @PathVariable String appointmentId,
+                                                                                        Principal principal) {
+        return new ResponseEntity<>(appointmentService.updateAppointment(appointmentId, appointmentRequestDto, principal.getName()), HttpStatus.OK);
     }
 }

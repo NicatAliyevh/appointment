@@ -4,28 +4,31 @@ import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.handler.exception.ResourceNotFoundException;
 import nijat.project.appointment.model.dto.request.AppointmentRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
+import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.entity.AppointmentEntity;
 import nijat.project.appointment.repository.AppointmentRepository;
 import nijat.project.appointment.service.AppointmentService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import static nijat.project.appointment.utils.common.UUIDUtils.parse;
 
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
-    @Override
 
-    public List<AppointmentResponseDto> getAppointments() {
+    @Override
+    public SuccessResponseDto<List<AppointmentResponseDto>> getAppointments(String name) {
         List<AppointmentEntity> appointments = appointmentRepository.findAll();
-        return appointments.stream().map(this::mapToDto).collect(Collectors.toList());
+        List<AppointmentResponseDto> appointmentResponseDtos = appointments.stream().map(this::mapToDto).toList();
+        return SuccessResponseDto.of(appointmentResponseDtos, "Appointments retrieved successfully.");
     }
 
     @Override
-    public AppointmentResponseDto createAppointment(AppointmentRequestDto appointmentRequestDto) {
+    public SuccessResponseDto<AppointmentResponseDto> createAppointment(AppointmentRequestDto appointmentRequestDto, String name) {
         AppointmentEntity appointmentEntity = AppointmentEntity.builder()
                 .doctorId(appointmentRequestDto.getDoctorId())
                 .patientId(appointmentRequestDto.getPatientId())
@@ -33,21 +36,21 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .appointmentTime(appointmentRequestDto.getAppointmentTime())
                 .build();
         appointmentRepository.save(appointmentEntity);
-        return mapToDto(appointmentEntity);
+        return SuccessResponseDto.of(mapToDto(appointmentEntity), "Appointment created successfully.");
     }
 
     @Override
-    public AppointmentResponseDto getAppointmentById(String appointmentId) {
+    public SuccessResponseDto<AppointmentResponseDto> getAppointmentById(String appointmentId, String name) {
         UUID id = parse(appointmentId);
 
         AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("Appointment with id: " + appointmentId + " not found")
         );
-        return mapToDto(appointmentEntity);
+        return SuccessResponseDto.of(mapToDto(appointmentEntity), "Appointment retrieved successfully.");
     }
 
     @Override
-    public AppointmentResponseDto updateAppointment(String appointmentId, AppointmentRequestDto appointmentRequestDto) {
+    public SuccessResponseDto<AppointmentResponseDto> updateAppointment(String appointmentId, AppointmentRequestDto appointmentRequestDto, String name) {
         UUID id = parse(appointmentId);
 
         AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
@@ -59,7 +62,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentEntity.setAppointmentTime(appointmentRequestDto.getAppointmentTime());
         appointmentRepository.save(appointmentEntity);
 
-        return AppointmentResponseDto.builder()
+        AppointmentResponseDto appointmentResponseDto = AppointmentResponseDto.builder()
                 .id(id)
                 .patientId(appointmentRequestDto.getPatientId())
                 .doctorId(appointmentRequestDto.getDoctorId())
@@ -67,6 +70,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .appointmentTime(appointmentRequestDto.getAppointmentTime())
                 .status(appointmentEntity.getStatus())
                 .build();
+        return SuccessResponseDto.of(appointmentResponseDto, "Appointment updated successfully.");
     }
 
     public AppointmentResponseDto mapToDto(AppointmentEntity appointmentEntity) {

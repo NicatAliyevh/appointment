@@ -29,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SuccessResponseDto<UserAuthResponseDto> register(UserRegisterRequestDto userRegisterRequestDto) {
         if(userRepository.findByEmail(userRegisterRequestDto.getEmail()).isPresent()){
+            System.out.println("Email exists: " + userRegisterRequestDto.getEmail());
             throw new EmailAlreadyExistsException("Email already exists.");
         }
 

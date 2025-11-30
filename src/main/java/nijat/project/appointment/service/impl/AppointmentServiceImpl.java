@@ -2,7 +2,9 @@ package nijat.project.appointment.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.handler.exception.ResourceNotFoundException;
-import nijat.project.appointment.model.dto.request.AppointmentRequestDto;
+import nijat.project.appointment.handler.exception.UnauthorizedAppointmentActionException;
+import nijat.project.appointment.model.dto.request.AppointmentCreateRequestDto;
+import nijat.project.appointment.model.dto.request.AppointmentUpdateRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.entity.AppointmentEntity;
@@ -23,61 +25,107 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserRepository userRepository;
 
     @Override
-    public SuccessResponseDto<List<AppointmentResponseDto>> getAppointments(String UUID) {
-        List<AppointmentEntity> appointments = appointmentRepository.findAll();
+    public SuccessResponseDto<List<AppointmentResponseDto>> getAppointments(String userId) {
+        UUID id = parse(userId);
+        UserEntity user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("User with this id: " + id + " not found")
+        );
+
+        List<AppointmentEntity> appointments;
+        if(user.getUserRole().equals(UserRole.PATIENT)){
+             appointments = appointmentRepository.findAllByPatientId(id);
+             if(appointments.isEmpty()){
+                 throw new ResourceNotFoundException("Patient with this id: " + id + " has no appointments");
+             }
+        }
+        else {
+            appointments = appointmentRepository.findAllByDoctorId(id);
+            if(appointments.isEmpty()){
+                throw new ResourceNotFoundException("Doctor with this id: " + id + " has no appointments");
+            }
+        }
+
         List<AppointmentResponseDto> appointmentResponseDtos = appointments.stream().map(this::mapToDto).toList();
         return SuccessResponseDto.of(appointmentResponseDtos, "Appointments retrieved successfully");
     }
 
     @Override
-    public SuccessResponseDto<AppointmentResponseDto> createAppointment(AppointmentRequestDto appointmentRequestDto, String UUID) {
-        UserEntity doctor = userRepository.findByIdAndUserRole(appointmentRequestDto.getDoctorId(), UserRole.DOCTOR).orElseThrow(
-                () -> new ResourceNotFoundException("Doctor with this id: " + appointmentRequestDto.getDoctorId() + " not found"));
-        UserEntity patient = userRepository.findByIdAndUserRole(appointmentRequestDto.getPatientId(), UserRole.PATIENT).orElseThrow(
-                () -> new ResourceNotFoundException("Patient with this id: " + appointmentRequestDto.getPatientId() + " not found"));
+    public SuccessResponseDto<AppointmentResponseDto> createAppointment(AppointmentCreateRequestDto appointmentCreateRequestDto,
+                                                                        String userId) {
+        UUID id = parse(userId);
+        if(userRepository.findById(id).isEmpty()){
+            throw new ResourceNotFoundException("User with this id: " + id + " not found");
+        }
+        if(!id.equals(appointmentCreateRequestDto.getPatientId()) || !id.equals(appointmentCreateRequestDto.getDoctorId())){
+            throw new UnauthorizedAppointmentActionException("You are not authorized to perform this request");
+        }
+
+        UserEntity doctor = userRepository.findByIdAndUserRole(appointmentCreateRequestDto.getDoctorId(), UserRole.DOCTOR).orElseThrow(
+                () -> new ResourceNotFoundException("Doctor with this id: " + appointmentCreateRequestDto.getDoctorId() + " not found"));
+        UserEntity patient = userRepository.findByIdAndUserRole(appointmentCreateRequestDto.getPatientId(), UserRole.PATIENT).orElseThrow(
+                () -> new ResourceNotFoundException("Patient with this id: " + appointmentCreateRequestDto.getPatientId() + " not found"));
 
         AppointmentEntity appointmentEntity = AppointmentEntity.builder()
                 .doctor(doctor)
                 .patient(patient)
-                .appointmentDate(appointmentRequestDto.getAppointmentDate())
-                .appointmentTime(appointmentRequestDto.getAppointmentTime())
+                .appointmentDate(appointmentCreateRequestDto.getAppointmentDate())
+                .appointmentTime(appointmentCreateRequestDto.getAppointmentTime())
                 .build();
+
         appointmentRepository.save(appointmentEntity);
         return SuccessResponseDto.of(mapToDto(appointmentEntity), "Appointment created successfully");
     }
 
     @Override
-    public SuccessResponseDto<AppointmentResponseDto> getAppointmentById(String appointmentId, String UUID) {
-        UUID id = parse(appointmentId);
+    public SuccessResponseDto<AppointmentResponseDto> getAppointmentById(String appointmentId,
+                                                                         String userId) {
+        AppointmentEntity appointment = getUserAppointment(appointmentId, userId);
 
-        AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("Appointment with id: " + appointmentId + " not found")
-        );
-        return SuccessResponseDto.of(mapToDto(appointmentEntity), "Appointment retrieved successfully");
+        return SuccessResponseDto.of(mapToDto(appointment), "Appointment retrieved successfully");
     }
 
     @Override
-    public SuccessResponseDto<AppointmentResponseDto> updateAppointment(String appointmentId, AppointmentRequestDto appointmentRequestDto, String UUID) {
-        UUID id = parse(appointmentId);
+    public SuccessResponseDto<AppointmentResponseDto> updateAppointment(String appointmentId,
+                                                                        AppointmentUpdateRequestDto appointmentUpdateRequestDto,
+                                                                        String userId) {
+        AppointmentEntity appointment = getUserAppointment(appointmentId, userId);
 
-        AppointmentEntity appointmentEntity = appointmentRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Appointment with id: " + id + " not found"));
-
-        appointmentEntity.getDoctor().setId(appointmentRequestDto.getDoctorId());
-        appointmentEntity.getPatient().setId(appointmentRequestDto.getPatientId());
-        appointmentEntity.setAppointmentDate(appointmentRequestDto.getAppointmentDate());
-        appointmentEntity.setAppointmentTime(appointmentRequestDto.getAppointmentTime());
-        appointmentRepository.save(appointmentEntity);
+        appointment.setAppointmentDate(appointmentUpdateRequestDto.getAppointmentDate());
+        appointment.setAppointmentTime(appointmentUpdateRequestDto.getAppointmentTime());
+        appointmentRepository.save(appointment);
 
         AppointmentResponseDto appointmentResponseDto = AppointmentResponseDto.builder()
-                .id(id)
-                .patientId(appointmentRequestDto.getPatientId())
-                .doctorId(appointmentRequestDto.getDoctorId())
-                .appointmentDate(appointmentRequestDto.getAppointmentDate())
-                .appointmentTime(appointmentRequestDto.getAppointmentTime())
-                .status(appointmentEntity.getStatus())
+                .id(appointment.getId())
+                .patientId(appointment.getPatient().getId())
+                .doctorId(appointment.getDoctor().getId())
+                .appointmentDate(appointmentUpdateRequestDto.getAppointmentDate())
+                .appointmentTime(appointmentUpdateRequestDto.getAppointmentTime())
+                .status(appointment.getStatus())
                 .build();
+
         return SuccessResponseDto.of(appointmentResponseDto, "Appointment updated successfully");
+    }
+
+    public AppointmentEntity getUserAppointment(String appointmentId, String userId){
+        UUID parsedAppointmentId = parse(appointmentId);
+        UUID parsedUserId = parse(userId);
+
+        UserEntity user = userRepository.findById(parsedUserId).orElseThrow(
+                () -> new ResourceNotFoundException("User with this id: " + parsedUserId + " not found")
+        );
+
+        AppointmentEntity appointment;
+        if(user.getUserRole().equals(UserRole.PATIENT)){
+            appointment = appointmentRepository.findByPatientIdAndId(parsedUserId, parsedAppointmentId).orElseThrow(
+                    () -> new ResourceNotFoundException("Patient and appointment ID do not match any records in the system.")
+            );
+        }
+        else {
+            appointment = appointmentRepository.findByDoctorIdAndId(parsedUserId, parsedAppointmentId).orElseThrow(
+                    () -> new ResourceNotFoundException("Doctor and appointment ID do not match any records in the system")
+            );
+        }
+        return appointment;
     }
 
     public AppointmentResponseDto mapToDto(AppointmentEntity appointmentEntity) {

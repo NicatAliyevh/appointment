@@ -2,7 +2,8 @@ package nijat.project.appointment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import nijat.project.appointment.model.dto.request.AppointmentRequestDto;
+import nijat.project.appointment.model.dto.request.AppointmentCreateRequestDto;
+import nijat.project.appointment.model.dto.request.AppointmentUpdateRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.service.AppointmentService;
@@ -36,15 +37,15 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> createAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto,
+    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> createAppointment(@Valid @RequestBody AppointmentCreateRequestDto appointmentCreateRequestDto,
                                                                                         Principal principal) {
-        return new ResponseEntity<>(appointmentService.createAppointment(appointmentRequestDto, principal.getName()), HttpStatus.CREATED);
+        return new ResponseEntity<>(appointmentService.createAppointment(appointmentCreateRequestDto, principal.getName()), HttpStatus.CREATED);
     }
 
     @PutMapping("/{appointmentId}")
-    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> updateAppointment(@Valid @RequestBody AppointmentRequestDto appointmentRequestDto,
+    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> updateAppointment(@Valid @RequestBody AppointmentUpdateRequestDto appointmentUpdateRequestDto,
                                                                                         @PathVariable String appointmentId,
                                                                                         Principal principal) {
-        return new ResponseEntity<>(appointmentService.updateAppointment(appointmentId, appointmentRequestDto, principal.getName()), HttpStatus.OK);
+        return new ResponseEntity<>(appointmentService.updateAppointment(appointmentId, appointmentUpdateRequestDto, principal.getName()), HttpStatus.OK);
     }
 }

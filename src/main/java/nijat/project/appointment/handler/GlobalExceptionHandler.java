@@ -1,10 +1,7 @@
 package nijat.project.appointment.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import nijat.project.appointment.handler.exception.EmailAlreadyExistsException;
-import nijat.project.appointment.handler.exception.InvalidCredentialsException;
-import nijat.project.appointment.handler.exception.InvalidUUIDFormatException;
-import nijat.project.appointment.handler.exception.ResourceNotFoundException;
+import nijat.project.appointment.handler.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex,
                                                                            HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(UnauthorizedAppointmentActionException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAppointmentCreationException(UnauthorizedAppointmentActionException ex,
+                                                                                        HttpServletRequest request) {
         return buildErrorResponse(ex, HttpStatus.UNAUTHORIZED, request);
     }
 

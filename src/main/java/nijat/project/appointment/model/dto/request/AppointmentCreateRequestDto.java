@@ -11,14 +11,14 @@ import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppointmentRequestDto {
-    @NotNull(message = "Doctor id cannot be null")
+public class AppointmentCreateRequestDto {
+    @NotNull(message = "Doctor id cannot be null.")
     UUID doctorId;
-    @NotNull(message = "Patient id cannot be null")
+    @NotNull(message = "Patient id cannot be null.")
     UUID patientId;
-    @NotNull(message = "Appointment date cannot be null")
-    @Future(message = "Appointment date must be in the future")
+    @NotNull(message = "Appointment date cannot be null.")
+    @Future(message = "Appointment date must be in the future.")
     LocalDate appointmentDate;
-    @NotNull(message = "Appointment time cannot be null")
+    @NotNull(message = "Appointment time cannot be null.")
     LocalTime appointmentTime;
 }

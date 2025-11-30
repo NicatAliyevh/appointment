@@ -13,4 +13,5 @@ public interface AppointmentService {
     SuccessResponseDto<AppointmentResponseDto> createAppointment(AppointmentCreateRequestDto appointmentCreateRequestDto, String userId);
     SuccessResponseDto<AppointmentResponseDto> getAppointmentById(String appointmentId, String userId);
     SuccessResponseDto<AppointmentResponseDto> updateAppointment(String appointmentId, AppointmentUpdateRequestDto appointmentUpdateRequestDto, String userId);
+    SuccessResponseDto<Void> deleteAppointment(String appointmentId, String userId);
 }

@@ -56,7 +56,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if(userRepository.findById(id).isEmpty()){
             throw new ResourceNotFoundException("User with this id: " + id + " not found");
         }
-        if(!id.equals(appointmentCreateRequestDto.getPatientId()) || !id.equals(appointmentCreateRequestDto.getDoctorId())){
+        if(!id.equals(appointmentCreateRequestDto.getPatientId()) && !id.equals(appointmentCreateRequestDto.getDoctorId())){
             throw new UnauthorizedAppointmentActionException("You are not authorized to perform this request");
         }
 
@@ -104,6 +104,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .build();
 
         return SuccessResponseDto.of(appointmentResponseDto, "Appointment updated successfully");
+    }
+
+    @Override
+    public SuccessResponseDto<Void> deleteAppointment(String appointmentId, String userId) {
+        AppointmentEntity appointment = getUserAppointment(appointmentId, userId);
+        appointmentRepository.delete(appointment);
+        return SuccessResponseDto.of("Appointment deleted successfully");
     }
 
     public AppointmentEntity getUserAppointment(String appointmentId, String userId){

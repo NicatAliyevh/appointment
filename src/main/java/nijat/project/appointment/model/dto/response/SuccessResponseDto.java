@@ -1,5 +1,6 @@
 package nijat.project.appointment.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SuccessResponseDto<T> {
     @Builder.Default
     HttpStatus status = HttpStatus.OK;

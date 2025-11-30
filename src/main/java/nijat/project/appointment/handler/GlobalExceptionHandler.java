@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedAppointmentActionException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedAppointmentCreationException(UnauthorizedAppointmentActionException ex,
                                                                                         HttpServletRequest request) {
-        return buildErrorResponse(ex, HttpStatus.UNAUTHORIZED, request);
+        return buildErrorResponse(ex, HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -60,7 +60,6 @@ public class GlobalExceptionHandler {
         response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             Exception ex, HttpStatus status, HttpServletRequest request) {

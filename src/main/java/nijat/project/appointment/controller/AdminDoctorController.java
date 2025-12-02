@@ -8,9 +8,7 @@ import nijat.project.appointment.service.AdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -22,6 +20,11 @@ public class AdminDoctorController {
 
     @GetMapping
     public ResponseEntity<SuccessResponseDto<List<AdminUserResponseDto>>> getAllDoctors() {
-        return new ResponseEntity<>(adminService.findAllByUserRole(UserRole.DOCTOR), HttpStatus.OK);
+        return new ResponseEntity<>(adminService.findAllUsers(UserRole.DOCTOR), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{doctorId}")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteDoctor(@PathVariable String doctorId) {
+        return new ResponseEntity<>(adminService.deleteUser(doctorId, UserRole.DOCTOR),HttpStatus.OK);
     }
 }

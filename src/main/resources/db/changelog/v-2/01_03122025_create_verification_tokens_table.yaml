@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 02_11252025_create_user_table
+      id: 01_03122025_create_verification_tokens_table
       author: Nijat Alizada
       changes:
         - createTable:
-            tableName: users
+            tableName: verification_tokens
             columns:
               - column:
                   name: id
@@ -13,11 +13,15 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  name: token
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
                   name: username
                   type: VARCHAR(40)
                   constraints:
                     nullable: false
-                    unique: true
               - column:
                   name: email
                   type: VARCHAR(40)
@@ -36,14 +40,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  name: progress
+                  type: VARCHAR(10)
+                  defaultValue: PENDING
                   constraints:
                     nullable: false
               - column:
-                  name: updated_at
+                  name: expiry_date
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false

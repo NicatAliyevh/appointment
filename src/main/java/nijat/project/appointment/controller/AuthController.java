@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.model.dto.request.UserLoginRequestDto;
 import nijat.project.appointment.model.dto.request.UserRegisterRequestDto;
+import nijat.project.appointment.model.dto.request.UserVerificationRequestDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.dto.response.UserAuthResponseDto;
 import nijat.project.appointment.service.AuthService;
@@ -21,13 +22,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> register(@Valid @RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+    public ResponseEntity<SuccessResponseDto<Void>> register(@Valid @RequestBody UserRegisterRequestDto userRegisterRequestDto) {
         return new ResponseEntity<>(authService.register(userRegisterRequestDto), HttpStatus.OK);
     }
 
     @PostMapping("/login")
     public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
         return new ResponseEntity<>(authService.login(userLoginRequestDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> verifyAccount(@Valid @RequestBody UserVerificationRequestDto userVerificationRequestDto){
+        return new ResponseEntity<>(authService.verifyAccount(userVerificationRequestDto), HttpStatus.OK);
     }
 
 }

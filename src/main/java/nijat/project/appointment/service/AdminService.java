@@ -12,6 +12,5 @@ public interface AdminService {
     SuccessResponseDto<List<AdminUserResponseDto>> findAllUsers(UserRole doctor);
     SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointments();
     SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointmentsByUserId(String userId);
-
     SuccessResponseDto<Void> deleteUser(String userId, UserRole userRole);
 }

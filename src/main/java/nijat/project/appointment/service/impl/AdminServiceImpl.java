@@ -72,13 +72,13 @@ public class AdminServiceImpl implements AdminService {
         UserEntity user = userRepository.findByIdAndUserRole(id, userRole).orElseThrow(
                 () -> new ResourceNotFoundException(role + " with this id: " + id + " not found")
         );
+
         userRepository.delete(user);
         return SuccessResponseDto.of(role + " deleted successfully");
     }
 
     public AdminUserResponseDto mapUserToDto(UserEntity userEntity) {
-        String userRole = userEntity.getUserRole().toString().charAt(0) +
-                userEntity.getUserRole().toString().substring(1).toLowerCase();
+        String userRole = formatRole(userEntity.getUserRole());
         return AdminUserResponseDto.builder()
                 .id(userEntity.getId())
                 .username(userEntity.getUsername())

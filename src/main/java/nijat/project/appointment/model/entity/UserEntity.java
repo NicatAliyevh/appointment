@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,12 +36,11 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    @NotNull
+    @Column(nullable = false)
     private String username;
-    @NotNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
-    @NotNull
+    @Column(nullable = false)
     private String password;
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -51,9 +49,8 @@ public class UserEntity {
     @Column(name = "updated_at", nullable = false)
     Instant updatedAt;
     @Builder.Default
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role")
+    @Column(name = "user_role", nullable = false)
     private UserRole userRole =  UserRole.PATIENT;
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     List<AppointmentEntity> patientAppointments;

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f5f9;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #2d9cdb; /* Medical-blue */
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+            color: #333333;
+        }
+        .content p {
+            margin: 0 0 20px;
+        }
+        .code-container {
+            background-color: #e8f4fc;
+            border-left: 5px solid #2d9cdb;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #2c3e50;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            color: #888888;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #2d9cdb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Hospital Management System</h1>
+    </div>
+
+    <div class="content">
+        <p>Hello <strong th:text="${userName}">User</strong>,</p>
+
+        <p>Welcome to the Hospital Management System. To complete your registration and ensure secure access to medical services, please verify your email using the code below.</p>
+
+        <div class="code-container">
+            <span class="code" th:text="${verificationCode}">123456</span>
+        </div>
+
+        <p>This verification code will expire in <strong>5 minutes</strong>.</p>
+
+        <p>If you did not create an account in our system, please ignore this message.</p>
+
+        <p>Regards,<br>The HMS Support Team</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Hospital Management System. All rights reserved.</p>
+        <p>This is an automated message. Please do not reply.</p>
+    </div>
+</div>
+
+</body>
+</html>

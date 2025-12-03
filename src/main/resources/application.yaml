@@ -12,6 +12,19 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/master.yaml
     enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: ${NO_REPLY_EMAIL}
+    password: ${NO_REPLY_EMAIL_PASS}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+          transport:
+            protocol: smpts
 logging:
   level:
     liquibase: DEBUG
@@ -24,4 +37,8 @@ application:
         expiration: ${ACCESS_TOKEN_EXPIRATION}
       refresh-token:
         expiration: ${REFRESH_TOKEN_EXPIRATION}
+
+
+
+
 

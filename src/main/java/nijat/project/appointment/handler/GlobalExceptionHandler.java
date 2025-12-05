@@ -1,12 +1,7 @@
 package nijat.project.appointment.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import nijat.project.appointment.handler.exception.BadRequestException;
-import nijat.project.appointment.handler.exception.EmailAlreadyExistsException;
-import nijat.project.appointment.handler.exception.InvalidCredentialsException;
-import nijat.project.appointment.handler.exception.InvalidUUIDFormatException;
-import nijat.project.appointment.handler.exception.ResourceNotFoundException;
-import nijat.project.appointment.handler.exception.UnauthorizedAppointmentActionException;
+import nijat.project.appointment.handler.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -74,14 +69,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RequestNotPermitted.class)
-    public ResponseEntity<String> handleRateLimitException(RequestNotPermitted ex) {
-        System.err.println("Rate Limit exceeded: " + ex.getMessage());
-
-        // Return HTTP 429 (Too Many Requests)
-        return new ResponseEntity<>(
-                "Rate limit exceeded for this API. Please try again later.",
-                HttpStatus.TOO_MANY_REQUESTS
-        );
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RequestNotPermitted ex,
+                                                                  HttpServletRequest request) {
+        String message = "Rate limit exceeded, please try again later.";
+        Exception customEx = new RuntimeException(message, ex);
+        return buildErrorResponse(customEx, HttpStatus.TOO_MANY_REQUESTS, request);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(

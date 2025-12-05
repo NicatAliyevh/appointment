@@ -1,17 +1,22 @@
 package nijat.project.appointment.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import nijat.project.appointment.handler.exception.BadRequestException;
 import nijat.project.appointment.handler.exception.EmailAlreadyExistsException;
 import nijat.project.appointment.handler.exception.InvalidCredentialsException;
 import nijat.project.appointment.handler.exception.ResourceNotFoundException;
+import nijat.project.appointment.model.dto.request.ForgotPasswordRequestDto;
+import nijat.project.appointment.model.dto.request.ResetPasswordRequestDto;
 import nijat.project.appointment.model.dto.request.UserLoginRequestDto;
 import nijat.project.appointment.model.dto.request.UserRegisterRequestDto;
 import nijat.project.appointment.model.dto.request.UserVerificationRequestDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.dto.response.UserAuthResponseDto;
+import nijat.project.appointment.model.entity.PasswordResetTokenEntity;
 import nijat.project.appointment.model.entity.UserEntity;
 import nijat.project.appointment.model.entity.VerificationTokenEntity;
 import nijat.project.appointment.model.enums.VerificationProgress;
+import nijat.project.appointment.repository.PasswordResetTokenRepository;
 import nijat.project.appointment.repository.UserRepository;
 import nijat.project.appointment.repository.VerificationTokenRepository;
 import nijat.project.appointment.service.AuthService;
@@ -29,12 +34,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
+
     private final UserRepository userRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
+
 
     @Override
     public SuccessResponseDto<Void> register(UserRegisterRequestDto userRegisterRequestDto) {
@@ -56,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getUsername(), code);
 
-        return SuccessResponseDto.of("Verification code sent to your email address");
+        return SuccessResponseDto.of("Verification code has been sent to your email address");
     }
 
     public SuccessResponseDto<UserAuthResponseDto> verifyAccount(UserVerificationRequestDto userVerificationRequestDto) {
@@ -123,5 +132,56 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .build();
         return SuccessResponseDto.of(userAuthResponseDto, "Login successful");
+    }
+
+    @Override
+    public SuccessResponseDto<Void> forgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto) {
+        String email = forgotPasswordRequestDto.getEmail();
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("User with this: " + email + " email not found")
+        );
+        String token =  UUID.randomUUID().toString();
+
+        PasswordResetTokenEntity forgotPasswordEntity = passwordResetTokenRepository.findByEmail(email).
+                orElse(new PasswordResetTokenEntity());
+        forgotPasswordEntity.setEmail(email);
+        forgotPasswordEntity.setToken(token);
+        forgotPasswordEntity.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+        passwordResetTokenRepository.save(forgotPasswordEntity);
+
+        emailService.sendPasswordResetLink(email, user.getUsername(), token);
+        return SuccessResponseDto.of("Password reset link has been sent to your email address");
+    }
+
+    @Override
+    public SuccessResponseDto<Void> resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+        String email =  resetPasswordRequestDto.getEmail();
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User with this: " + email + " email not found")
+        );
+        PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepository.findByEmail(email).orElseThrow(
+                        () -> new ResourceNotFoundException("Your password reset link is invalid or has expired. Please request a new one")
+        );
+
+        if(passwordResetTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
+            passwordResetTokenRepository.delete(passwordResetTokenEntity);
+            throw new ResourceNotFoundException("Your password reset link has expired, please request a new one");
+        }
+
+        if(!resetPasswordRequestDto.getToken().equals(passwordResetTokenEntity.getToken())) {
+            System.out.println("from repo: " + passwordResetTokenEntity.getToken());
+            System.out.println("from user: " + resetPasswordRequestDto.getToken());
+            throw new InvalidCredentialsException("Invalid token");
+        }
+
+        if(bCryptPasswordEncoder.matches(resetPasswordRequestDto.getPassword(), user.getPassword())) {
+            throw new BadRequestException("Your request could not be processed");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(resetPasswordRequestDto.getPassword()));
+        userRepository.save(user);
+        passwordResetTokenRepository.delete(passwordResetTokenEntity);
+
+        return SuccessResponseDto.of("Your password has been reset successfully");
     }
 }

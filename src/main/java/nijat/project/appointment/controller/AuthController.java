@@ -1,5 +1,6 @@
 package nijat.project.appointment.controller;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.model.dto.request.UserLoginRequestDto;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth/")
 @RequiredArgsConstructor
+@RateLimiter(name = "HMS-Rate-Limiter")
 public class AuthController {
     private final AuthService authService;
 

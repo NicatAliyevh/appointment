@@ -1,5 +1,6 @@
 package nijat.project.appointment.handler;
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
 import nijat.project.appointment.handler.exception.BadRequestException;
 import nijat.project.appointment.handler.exception.EmailAlreadyExistsException;
@@ -17,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -71,6 +71,14 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RequestNotPermitted ex,
+                                                                  HttpServletRequest request) {
+        String message = "Rate limit exceeded, please try again later.";
+        Exception customEx = new RuntimeException(message, ex);
+        return buildErrorResponse(customEx, HttpStatus.TOO_MANY_REQUESTS, request);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(

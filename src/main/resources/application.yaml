@@ -25,6 +25,14 @@ spring:
             enable: true
           transport:
             protocol: smpts
+resilience4j:
+  ratelimiter:
+    instances:
+      HMS-Rate-Limiter:
+        limitForPeriod: 5
+        limitRefreshPeriod: 60s
+        timeoutDuration: 100ms
+
 logging:
   level:
     liquibase: DEBUG

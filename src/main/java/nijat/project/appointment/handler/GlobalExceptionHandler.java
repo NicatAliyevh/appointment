@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -71,6 +71,17 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<String> handleRateLimitException(RequestNotPermitted ex) {
+        System.err.println("Rate Limit exceeded: " + ex.getMessage());
+
+        // Return HTTP 429 (Too Many Requests)
+        return new ResponseEntity<>(
+                "Rate limit exceeded for this API. Please try again later.",
+                HttpStatus.TOO_MANY_REQUESTS
+        );
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(

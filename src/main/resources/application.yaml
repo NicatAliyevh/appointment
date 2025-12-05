@@ -28,9 +28,9 @@ spring:
 resilience4j:
   ratelimiter:
     instances:
-      HMS-Rate-Limiter:
+      auth-rate-limiter:
         limitForPeriod: 5
-        limitRefreshPeriod: 60s
+        limitRefreshPeriod: 120s
         timeoutDuration: 100ms
 
 logging:
@@ -45,6 +45,8 @@ application:
         expiration: ${ACCESS_TOKEN_EXPIRATION}
       refresh-token:
         expiration: ${REFRESH_TOKEN_EXPIRATION}
+  frontend:
+    base-url: hospital-management-system
 
 
 

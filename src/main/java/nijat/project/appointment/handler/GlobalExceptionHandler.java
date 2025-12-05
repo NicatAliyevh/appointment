@@ -1,7 +1,13 @@
 package nijat.project.appointment.handler;
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
-import nijat.project.appointment.handler.exception.*;
+import nijat.project.appointment.handler.exception.BadRequestException;
+import nijat.project.appointment.handler.exception.EmailAlreadyExistsException;
+import nijat.project.appointment.handler.exception.InvalidCredentialsException;
+import nijat.project.appointment.handler.exception.InvalidUUIDFormatException;
+import nijat.project.appointment.handler.exception.ResourceNotFoundException;
+import nijat.project.appointment.handler.exception.UnauthorizedAppointmentActionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

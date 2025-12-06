@@ -2,15 +2,19 @@ package nijat.project.appointment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import nijat.project.appointment.model.dto.request.AppointmentCreateRequestDto;
 import nijat.project.appointment.model.dto.request.AppointmentUpdateRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.util.List;
 
@@ -29,12 +33,6 @@ public class AppointmentController {
     public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> getAppointmentById(@PathVariable String appointmentId,
                                                                                          Principal principal) {
         return new ResponseEntity<>(appointmentService.getAppointmentById(appointmentId, principal.getName()), HttpStatus.OK);
-    }
-
-    @PostMapping
-    public ResponseEntity<SuccessResponseDto<AppointmentResponseDto>> createAppointment(@Valid @RequestBody AppointmentCreateRequestDto appointmentCreateRequestDto,
-                                                                                        Principal principal) {
-        return new ResponseEntity<>(appointmentService.createAppointment(appointmentCreateRequestDto, principal.getName()), HttpStatus.CREATED);
     }
 
     @PutMapping("/{appointmentId}")

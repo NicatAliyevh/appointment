@@ -2,8 +2,6 @@ package nijat.project.appointment.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.handler.exception.ResourceNotFoundException;
-import nijat.project.appointment.handler.exception.UnauthorizedAppointmentActionException;
-import nijat.project.appointment.model.dto.request.AppointmentCreateRequestDto;
 import nijat.project.appointment.model.dto.request.AppointmentUpdateRequestDto;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
@@ -47,33 +45,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         List<AppointmentResponseDto> appointmentResponseDtos = appointments.stream().map(this::mapToDto).toList();
         return SuccessResponseDto.of(appointmentResponseDtos, "Appointments retrieved successfully");
-    }
-
-    @Override
-    public SuccessResponseDto<AppointmentResponseDto> createAppointment(AppointmentCreateRequestDto appointmentCreateRequestDto,
-                                                                        String userId) {
-        UUID id = parse(userId);
-        if(userRepository.findById(id).isEmpty()){
-            throw new ResourceNotFoundException("User with this id: " + id + " not found");
-        }
-        if(!id.equals(appointmentCreateRequestDto.getPatientId()) && !id.equals(appointmentCreateRequestDto.getDoctorId())){
-            throw new UnauthorizedAppointmentActionException("You are not authorized to perform this request");
-        }
-
-        UserEntity doctor = userRepository.findByIdAndUserRole(appointmentCreateRequestDto.getDoctorId(), UserRole.DOCTOR).orElseThrow(
-                () -> new ResourceNotFoundException("Doctor with this id: " + appointmentCreateRequestDto.getDoctorId() + " not found"));
-        UserEntity patient = userRepository.findByIdAndUserRole(appointmentCreateRequestDto.getPatientId(), UserRole.PATIENT).orElseThrow(
-                () -> new ResourceNotFoundException("Patient with this id: " + appointmentCreateRequestDto.getPatientId() + " not found"));
-
-        AppointmentEntity appointmentEntity = AppointmentEntity.builder()
-                .doctor(doctor)
-                .patient(patient)
-                .appointmentDate(appointmentCreateRequestDto.getAppointmentDate())
-                .appointmentTime(appointmentCreateRequestDto.getAppointmentTime())
-                .build();
-
-        appointmentRepository.save(appointmentEntity);
-        return SuccessResponseDto.of(mapToDto(appointmentEntity), "Appointment created successfully");
     }
 
     @Override

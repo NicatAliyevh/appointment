@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +69,57 @@ public class EmailServiceImpl implements EmailService {
 
         } catch (Exception e){
             log.error("Error sending forgot password link to {}", to, e);
+        }
+    }
+
+    @Override
+    public void sendAppointmentRequest(String to, String doctorName, String patientName, LocalDate appointmentDate, LocalTime appointmentTime) {
+        try{
+            Context context = new Context();
+            context.setVariable("doctorName", doctorName);
+            context.setVariable("patientName", patientName);
+            context.setVariable("appointmentDate", appointmentDate);
+            context.setVariable("appointmentTime", appointmentTime);
+
+
+            String htmlContent = templateEngine.process("appointment-request-email", context);
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("Hospital-Management System Appointment Request");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e){
+            log.error("Error sending email to {}", to, e);
+        }
+    }
+
+    @Override
+    public void sendAppointmentApproval(String to, String doctorName, String patientName, LocalDate appointmentDate, LocalTime appointmentTime) {
+        try{
+            Context context = new Context();
+            context.setVariable("doctorName", doctorName);
+            context.setVariable("patientName", patientName);
+            context.setVariable("appointmentDate", appointmentDate);
+            context.setVariable("appointmentTime", appointmentTime);
+
+
+            String htmlContent = templateEngine.process("appointment-approval-email", context);
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("Hospital-Management System Appointment Approval");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e){
+            log.error("Error sending email to {}", to, e);
         }
     }
 }

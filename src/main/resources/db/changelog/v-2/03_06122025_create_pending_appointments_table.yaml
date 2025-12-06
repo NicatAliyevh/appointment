@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03_06122025_create_pending_appointments_table
+      author: Nijat Alizada
+      changes:
+        - createTable:
+            tableName: pending_appointments
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: "gen_random_uuid()"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: doctor_email
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: patient_email
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: appointment_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: appointment_time
+                  type: TIME
+                  constraints:
+                    nullable: false

@@ -26,7 +26,7 @@ public class AdminAppointmentController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAllAppointmentsByPatientId(@PathVariable String userId) {
+    public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAllAppointmentsByUserId(@PathVariable String userId) {
         return new ResponseEntity<>(adminService.findAllAppointmentsByUserId(userId), HttpStatus.OK);
     }
 }

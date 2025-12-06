@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,43 +14,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import nijat.project.appointment.model.enums.AppointmentStatus;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name="appointments")
-@Builder
-public class AppointmentEntity {
+@Table(name = "pending_appointments")
+public class PendingAppointmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
+    @Column(name = "doctor_email", nullable = false)
+    String doctorEmail;
+    @Column(name = "patient_email", nullable = false)
+    String patientEmail;
+    @Builder.Default
+    @Column(name = "status", nullable = false)
+    AppointmentStatus status = AppointmentStatus.PENDING;
     @Column(name = "appointment_date", nullable = false)
     LocalDate appointmentDate;
     @Column(name = "appointment_time", nullable = false)
     LocalTime appointmentTime;
-    @Builder.Default
-    @Column(name = "status", nullable = false)
-    AppointmentStatus status = AppointmentStatus.SCHEDULED;
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    Instant createdAt;
-    @Column(name = "updated_at", nullable = false)
-    @CreationTimestamp
-    Instant updatedAt;
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
-    UserEntity patient;
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    UserEntity doctor;
 }

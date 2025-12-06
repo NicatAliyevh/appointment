@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppointmentCreateRequestDto {
+public class PendingAppointmentRequestDto {
     @NotNull(message = "Doctor id cannot be null.")
     UUID doctorId;
     @NotNull(message = "Patient id cannot be null.")

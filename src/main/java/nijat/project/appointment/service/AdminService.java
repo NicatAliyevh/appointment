@@ -5,13 +5,14 @@ import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.enums.AppointmentStatus;
 import nijat.project.appointment.model.enums.UserRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public interface AdminService {
-    SuccessResponseDto<List<UserResponseDto>> findAllUsers(UserRole doctor);
-    SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointments(AppointmentStatus appointmentStatus);
-    SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointmentsByUserId(String userId);
+    SuccessResponseDto<Page<UserResponseDto>> findAllUsers(UserRole doctor, Pageable pageable);
+    SuccessResponseDto<Page<AppointmentResponseDto>> findAllAppointments(AppointmentStatus appointmentStatus, Pageable pageable);
+    SuccessResponseDto<Page<AppointmentResponseDto>> findAllAppointmentsByUserId(String userId, Pageable pageable);
     SuccessResponseDto<Void> deleteUser(String userId, UserRole userRole);
 }

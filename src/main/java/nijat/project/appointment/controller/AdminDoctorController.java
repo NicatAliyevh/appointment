@@ -5,11 +5,12 @@ import nijat.project.appointment.model.dto.response.UserResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.enums.UserRole;
 import nijat.project.appointment.service.AdminService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +20,8 @@ public class AdminDoctorController {
     private final AdminService adminService;
 
     @GetMapping
-    public ResponseEntity<SuccessResponseDto<List<UserResponseDto>>> getAllDoctors() {
-        return new ResponseEntity<>(adminService.findAllUsers(UserRole.DOCTOR), HttpStatus.OK);
+    public ResponseEntity<SuccessResponseDto<Page<UserResponseDto>>> getAllDoctors(Pageable pageable) {
+        return new ResponseEntity<>(adminService.findAllUsers(UserRole.DOCTOR, pageable), HttpStatus.OK);
     }
 
     @DeleteMapping("/{doctorId}")

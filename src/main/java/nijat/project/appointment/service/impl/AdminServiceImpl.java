@@ -15,8 +15,9 @@ import nijat.project.appointment.repository.AppointmentRepository;
 import nijat.project.appointment.repository.PendingAppointmentRepository;
 import nijat.project.appointment.repository.UserRepository;
 import nijat.project.appointment.service.AdminService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.UUID;
 import static nijat.project.appointment.utils.common.EnumUtils.formatRole;
 import static nijat.project.appointment.utils.common.UUIDUtils.parse;
@@ -29,49 +30,48 @@ public class AdminServiceImpl implements AdminService {
     private final PendingAppointmentRepository pendingAppointmentRepository;
 
     @Override
-    public SuccessResponseDto<List<UserResponseDto>> findAllUsers(UserRole userRole) {
-        List<UserEntity> users = userRepository.findAllByUserRole(userRole);
+    public SuccessResponseDto<Page<UserResponseDto>> findAllUsers(UserRole userRole, Pageable pageable) {
+        Page<UserEntity> users = userRepository.findAllByUserRole(userRole, pageable);
         String role = formatRole(userRole);
         String message = role + "s retrieved successfully";
-        return SuccessResponseDto.of(users.stream().map(this::mapUserToDto).toList(), message);
+        return SuccessResponseDto.of(users.map(this::mapUserToDto), message);
     }
 
     @Override
-    public SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointments(AppointmentStatus appointmentStatus) {
-        List<AppointmentResponseDto> appointmentResponseDtos = List.of();
+    public SuccessResponseDto<Page<AppointmentResponseDto>> findAllAppointments(AppointmentStatus appointmentStatus,
+                                                                                Pageable pageable) {
+        Page<AppointmentResponseDto> appointmentResponseDtos = null;
         String message = "";
         if(appointmentStatus==AppointmentStatus.SCHEDULED){
-            List<AppointmentEntity> appointmentEntities = appointmentRepository.findAll();
-            appointmentResponseDtos = appointmentEntities.stream()
-                    .map(this::mapAppointmentToDto).toList();
+            Page<AppointmentEntity> appointmentEntities = appointmentRepository.findAll(pageable);
+            appointmentResponseDtos = appointmentEntities.map(this::mapAppointmentToDto);
             message = "Appointments retrieved successfully";
         }
         else if(appointmentStatus==AppointmentStatus.PENDING){
-            List<PendingAppointmentEntity> pendingAppointmentEntities = pendingAppointmentRepository.findAll();
-            appointmentResponseDtos = pendingAppointmentEntities.stream().map(this::mapPendingAppointmentToDto).toList();
+            Page<PendingAppointmentEntity> pendingAppointmentEntities = pendingAppointmentRepository.findAll(pageable);
+            appointmentResponseDtos = pendingAppointmentEntities.map(this::mapPendingAppointmentToDto);
             message = "Pending appointments retrieved successfully";
         }
 
-        if(appointmentResponseDtos.isEmpty()){
+        if(appointmentResponseDtos == null || appointmentResponseDtos.isEmpty()){
             throw new ResourceNotFoundException("No appointment found");
         }
-
         return SuccessResponseDto.of(appointmentResponseDtos, message);
     }
 
     @Override
-    public SuccessResponseDto<List<AppointmentResponseDto>> findAllAppointmentsByUserId(String userId) {
+    public SuccessResponseDto<Page<AppointmentResponseDto>> findAllAppointmentsByUserId(String userId, Pageable pageable) {
         UUID id = parse(userId);
         UserEntity user = userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User with this id: " + id + " not found"));
 
-        List<AppointmentEntity> appointment;
+        Page<AppointmentEntity> appointment;
         String role = formatRole(user.getUserRole());
 
         if(user.getUserRole()==UserRole.DOCTOR){
-            appointment = appointmentRepository.findAllByDoctorId(id);
+            appointment = appointmentRepository.findAllByDoctorId(id, pageable);
         } else if(user.getUserRole()==UserRole.PATIENT){
-            appointment = appointmentRepository.findAllByPatientId(id);
+            appointment = appointmentRepository.findAllByPatientId(id, pageable);
         } else {
             throw new BadRequestException("Invalid user role");
         }
@@ -79,7 +79,8 @@ public class AdminServiceImpl implements AdminService {
         if(appointment.isEmpty()){
             throw new ResourceNotFoundException(role + " with the given id has no appointments");
         }
-        List<AppointmentResponseDto> appointmentResponseDtos = appointment.stream().map(this::mapAppointmentToDto).toList();
+
+        Page<AppointmentResponseDto> appointmentResponseDtos = appointment.map(this::mapAppointmentToDto);
         return SuccessResponseDto.of(appointmentResponseDtos, role + " appointments for the given id retrieved successfully");
     }
 

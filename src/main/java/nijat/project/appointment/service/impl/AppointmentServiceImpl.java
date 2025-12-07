@@ -11,8 +11,9 @@ import nijat.project.appointment.model.enums.UserRole;
 import nijat.project.appointment.repository.AppointmentRepository;
 import nijat.project.appointment.repository.UserRepository;
 import nijat.project.appointment.service.AppointmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.UUID;
 import static nijat.project.appointment.utils.common.UUIDUtils.parse;
 
@@ -23,27 +24,27 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserRepository userRepository;
 
     @Override
-    public SuccessResponseDto<List<AppointmentResponseDto>> getAppointments(String userId) {
+    public SuccessResponseDto<Page<AppointmentResponseDto>> getAppointments(String userId, Pageable pageable) {
         UUID id = parse(userId);
         UserEntity user = userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User with this id: " + id + " not found")
         );
 
-        List<AppointmentEntity> appointments;
+        Page<AppointmentEntity> appointments;
         if(user.getUserRole().equals(UserRole.PATIENT)){
-             appointments = appointmentRepository.findAllByPatientId(id);
+             appointments = appointmentRepository.findAllByPatientId(id, pageable);
              if(appointments.isEmpty()){
                  throw new ResourceNotFoundException("Patient with this id: " + id + " has no appointments");
              }
         }
         else {
-            appointments = appointmentRepository.findAllByDoctorId(id);
+            appointments = appointmentRepository.findAllByDoctorId(id, pageable);
             if(appointments.isEmpty()){
                 throw new ResourceNotFoundException("Doctor with this id: " + id + " has no appointments");
             }
         }
 
-        List<AppointmentResponseDto> appointmentResponseDtos = appointments.stream().map(this::mapToDto).toList();
+        Page<AppointmentResponseDto> appointmentResponseDtos = appointments.map(this::mapToDto);
         return SuccessResponseDto.of(appointmentResponseDtos, "Appointments retrieved successfully");
     }
 

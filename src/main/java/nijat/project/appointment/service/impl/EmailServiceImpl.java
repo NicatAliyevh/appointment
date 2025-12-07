@@ -106,7 +106,6 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("appointmentDate", appointmentDate);
             context.setVariable("appointmentTime", appointmentTime);
 
-
             String htmlContent = templateEngine.process("appointment-approval-email", context);
 
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -114,6 +113,31 @@ public class EmailServiceImpl implements EmailService {
 
             helper.setTo(to);
             helper.setSubject("Hospital-Management System Appointment Approval");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e){
+            log.error("Error sending email to {}", to, e);
+        }
+    }
+
+    @Override
+    public void sendAppointmentRejection(String to, String doctorName, String patientName, LocalDate appointmentDate, LocalTime appointmentTime) {
+        try{
+            Context context = new Context();
+            context.setVariable("doctorName", doctorName);
+            context.setVariable("patientName", patientName);
+            context.setVariable("appointmentDate", appointmentDate);
+            context.setVariable("appointmentTime", appointmentTime);
+
+            String htmlContent = templateEngine.process("appointment-rejection-email", context);
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("Hospital-Management System Appointment Rejection");
             helper.setText(htmlContent, true);
 
             javaMailSender.send(message);

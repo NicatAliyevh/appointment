@@ -1,7 +1,7 @@
 package nijat.project.appointment.controller;
 
 import lombok.RequiredArgsConstructor;
-import nijat.project.appointment.model.dto.response.AdminUserResponseDto;
+import nijat.project.appointment.model.dto.response.UserResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.enums.UserRole;
 import nijat.project.appointment.service.AdminService;
@@ -23,7 +23,7 @@ public class AdminPatientController {
     private final AdminService adminService;
 
     @GetMapping
-    public ResponseEntity<SuccessResponseDto<List<AdminUserResponseDto>>> getAllPatients() {
+    public ResponseEntity<SuccessResponseDto<List<UserResponseDto>>> getAllPatients() {
         return new ResponseEntity<>(adminService.findAllUsers(UserRole.PATIENT), HttpStatus.OK);
     }
 

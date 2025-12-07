@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AdminUserResponseDto {
+public class UserResponseDto {
     UUID id;
     String username;
     String email;

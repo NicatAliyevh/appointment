@@ -6,6 +6,7 @@ import nijat.project.appointment.handler.exception.UnauthorizedException;
 import nijat.project.appointment.model.dto.request.PendingAppointmentRequestDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.entity.AppointmentEntity;
+import nijat.project.appointment.model.dto.shared.PendingAppointmentContextDto;
 import nijat.project.appointment.model.entity.PendingAppointmentEntity;
 import nijat.project.appointment.model.entity.UserEntity;
 import nijat.project.appointment.model.enums.AppointmentStatus;
@@ -65,29 +66,10 @@ public class PendingAppointmentServiceImpl implements PendingAppointmentService 
 
     @Override
     public SuccessResponseDto<Void> approveAppointment(String appointmentId, String userId) {
-        UUID id = parse(userId);
-        UUID parsedAppointmentId = parse(appointmentId);
-
-        UserEntity user = userRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("User with this id: " + id + " not found")
-        );
-        PendingAppointmentEntity pendingAppointment = pendingAppointmentRepository.findById(parsedAppointmentId).orElseThrow(
-                () -> new ResourceNotFoundException("No pending appointment with this id: " + parsedAppointmentId + " found")
-        );
-
-        UUID patientId = parse(pendingAppointment.getPatientId());
-        UUID doctorId = parse(pendingAppointment.getDoctorId());
-
-        UserEntity patient = userRepository.findByIdAndUserRole(patientId, UserRole.PATIENT).orElseThrow(
-                () -> new ResourceNotFoundException("Patient not found")
-        );
-        UserEntity doctor =  userRepository.findByIdAndUserRole(doctorId, UserRole.DOCTOR).orElseThrow(
-                () -> new ResourceNotFoundException("Doctor not found")
-        );
-
-        if(!user.getId().equals(doctorId)){
-            throw new UnauthorizedException("You are not authorized to perform this request");
-        }
+        PendingAppointmentContextDto pendingAppointmentContext = validateAndLoadPendingAppointmentContext(appointmentId, userId);
+        UserEntity doctor = pendingAppointmentContext.getDoctor();
+        UserEntity patient = pendingAppointmentContext.getPatient();
+        PendingAppointmentEntity pendingAppointment = pendingAppointmentContext.getPendingAppointment();
 
         AppointmentEntity appointmentEntity = AppointmentEntity.builder()
                 .doctor(doctor)
@@ -104,5 +86,52 @@ public class PendingAppointmentServiceImpl implements PendingAppointmentService 
                 pendingAppointment.getAppointmentDate(), pendingAppointment.getAppointmentTime());
 
         return SuccessResponseDto.of("The appointment has been approved");
+    }
+
+    @Override
+    public SuccessResponseDto<Void> rejectAppointment(String appointmentId, String userId) {
+        PendingAppointmentContextDto pendingAppointmentContext = validateAndLoadPendingAppointmentContext(appointmentId, userId);
+        UserEntity doctor = pendingAppointmentContext.getDoctor();
+        UserEntity patient = pendingAppointmentContext.getPatient();
+        PendingAppointmentEntity pendingAppointment = pendingAppointmentContext.getPendingAppointment();
+
+        pendingAppointmentRepository.delete(pendingAppointment);
+
+        emailService.sendAppointmentRejection(patient.getEmail(), doctor.getUsername(), patient.getUsername(),
+                pendingAppointment.getAppointmentDate(), pendingAppointment.getAppointmentTime());
+
+        return SuccessResponseDto.of("The appointment has been rejected");
+    }
+
+    public PendingAppointmentContextDto validateAndLoadPendingAppointmentContext(String appointmentId, String userId){
+        UUID id = parse(userId);
+        UUID parsedAppointmentId = parse(appointmentId);
+
+        UserEntity user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("User with this id: " + id + " not found")
+        );
+        PendingAppointmentEntity pendingAppointment = pendingAppointmentRepository.findById(parsedAppointmentId).orElseThrow(
+                () -> new ResourceNotFoundException("No pending appointment with this id: " + parsedAppointmentId + " found")
+        );
+
+        UUID patientId = parse(pendingAppointment.getPatientId());
+        UUID doctorId = parse(pendingAppointment.getDoctorId());
+
+        UserEntity patient = userRepository.findByIdAndUserRole(patientId, UserRole.PATIENT).orElseThrow(
+                () -> new ResourceNotFoundException("Patient not found")
+        );
+        UserEntity doctor = userRepository.findByIdAndUserRole(doctorId, UserRole.DOCTOR).orElseThrow(
+                () -> new ResourceNotFoundException("Doctor not found")
+        );
+
+        if(!user.getId().equals(doctorId)){
+            throw new UnauthorizedException("You are not authorized to perform this request");
+        }
+
+        return PendingAppointmentContextDto.builder()
+                .doctor(doctor)
+                .patient(patient)
+                .pendingAppointment(pendingAppointment)
+                .build();
     }
 }

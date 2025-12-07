@@ -10,4 +10,8 @@ public interface EmailService {
                                 LocalDate appointmentDate, LocalTime appointmentTime);
     void sendAppointmentApproval(String to, String doctorName, String patientName,
                                 LocalDate appointmentDate, LocalTime appointmentTime);
+
+    void sendAppointmentRejection(String to, String doctorName, String patientName,
+                                 LocalDate appointmentDate, LocalTime appointmentTime);
+
 }

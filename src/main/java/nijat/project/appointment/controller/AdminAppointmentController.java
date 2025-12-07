@@ -3,6 +3,7 @@ package nijat.project.appointment.controller;
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.model.dto.response.AppointmentResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
+import nijat.project.appointment.model.enums.AppointmentStatus;
 import nijat.project.appointment.service.AdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,16 @@ public class AdminAppointmentController {
 
     @GetMapping
     public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAllAppointments() {
-        return new ResponseEntity<>(adminService.findAllAppointments(), HttpStatus.OK);
+        return new ResponseEntity<>(adminService.findAllAppointments(AppointmentStatus.SCHEDULED), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAllAppointmentsByUserId(@PathVariable String userId) {
         return new ResponseEntity<>(adminService.findAllAppointmentsByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<SuccessResponseDto<List<AppointmentResponseDto>>> getAllPendingAppointments() {
+        return new ResponseEntity<>(adminService.findAllAppointments(AppointmentStatus.PENDING), HttpStatus.OK);
     }
 }

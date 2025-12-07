@@ -31,21 +31,25 @@ public class PendingAppointmentServiceImpl implements PendingAppointmentService 
     @Override
     public SuccessResponseDto<Void> requestAppointment(PendingAppointmentRequestDto pendingAppointmentRequestDto, String userId) {
         UUID id = parse(userId);
-        if(userRepository.findById(id).isEmpty()){
+        UUID patientId = parse(pendingAppointmentRequestDto.getPatientId());
+        UUID doctorId = parse(pendingAppointmentRequestDto.getDoctorId());
+
+        if(userRepository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException("User with this id: " + id + " not found");
         }
-        if(!id.equals(pendingAppointmentRequestDto.getPatientId())){
+
+        if(!id.equals(patientId)){
             throw new UnauthorizedException("You are not authorized to perform this request");
         }
 
-        UserEntity doctor = userRepository.findByIdAndUserRole(pendingAppointmentRequestDto.getDoctorId(), UserRole.DOCTOR).orElseThrow(
-                () -> new ResourceNotFoundException("Doctor with this id: " + pendingAppointmentRequestDto.getDoctorId() + " not found"));
-        UserEntity patient = userRepository.findByIdAndUserRole(pendingAppointmentRequestDto.getPatientId(), UserRole.PATIENT).orElseThrow(
-                () -> new ResourceNotFoundException("Patient with this id: " + pendingAppointmentRequestDto.getPatientId() + " not found"));
+        UserEntity doctor = userRepository.findByIdAndUserRole(doctorId, UserRole.DOCTOR).orElseThrow(
+                () -> new ResourceNotFoundException("Doctor with this id: " + doctorId + " not found"));
+        UserEntity patient = userRepository.findByIdAndUserRole(patientId, UserRole.PATIENT).orElseThrow(
+                () -> new ResourceNotFoundException("Patient with this id: " + patientId + " not found"));
 
         PendingAppointmentEntity pendingAppointment = PendingAppointmentEntity.builder()
-                .doctorEmail(doctor.getEmail())
-                .patientEmail(patient.getEmail())
+                .doctorId(doctor.getId().toString())
+                .patientId(patient.getId().toString())
                 .status(AppointmentStatus.PENDING)
                 .appointmentDate(pendingAppointmentRequestDto.getAppointmentDate())
                 .appointmentTime(pendingAppointmentRequestDto.getAppointmentTime())
@@ -63,17 +67,25 @@ public class PendingAppointmentServiceImpl implements PendingAppointmentService 
     public SuccessResponseDto<Void> approveAppointment(String appointmentId, String userId) {
         UUID id = parse(userId);
         UUID parsedAppointmentId = parse(appointmentId);
-        UserEntity doctor = userRepository.findById(id).orElseThrow(
+
+        UserEntity user = userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User with this id: " + id + " not found")
         );
         PendingAppointmentEntity pendingAppointment = pendingAppointmentRepository.findById(parsedAppointmentId).orElseThrow(
                 () -> new ResourceNotFoundException("No pending appointment with this id: " + parsedAppointmentId + " found")
         );
-        UserEntity patient = userRepository.findByEmailAndUserRole(pendingAppointment.getPatientEmail(), UserRole.PATIENT).orElseThrow(
+
+        UUID patientId = parse(pendingAppointment.getPatientId());
+        UUID doctorId = parse(pendingAppointment.getDoctorId());
+
+        UserEntity patient = userRepository.findByIdAndUserRole(patientId, UserRole.PATIENT).orElseThrow(
                 () -> new ResourceNotFoundException("Patient not found")
         );
+        UserEntity doctor =  userRepository.findByIdAndUserRole(doctorId, UserRole.DOCTOR).orElseThrow(
+                () -> new ResourceNotFoundException("Doctor not found")
+        );
 
-        if(!doctor.getEmail().equals(pendingAppointment.getDoctorEmail())){
+        if(!user.getId().equals(doctorId)){
             throw new UnauthorizedException("You are not authorized to perform this request");
         }
 

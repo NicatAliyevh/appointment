@@ -7,15 +7,14 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PendingAppointmentRequestDto {
     @NotNull(message = "Doctor id cannot be null.")
-    UUID doctorId;
+    String doctorId;
     @NotNull(message = "Patient id cannot be null.")
-    UUID patientId;
+    String patientId;
     @NotNull(message = "Appointment date cannot be null.")
     @Future(message = "Appointment date must be in the future.")
     LocalDate appointmentDate;

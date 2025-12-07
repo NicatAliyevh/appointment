@@ -32,10 +32,10 @@ public class PendingAppointmentEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-    @Column(name = "doctor_email", nullable = false)
-    String doctorEmail;
-    @Column(name = "patient_email", nullable = false)
-    String patientEmail;
+    @Column(name = "doctor_id", nullable = false)
+    String doctorId;
+    @Column(name = "patient_id", nullable = false)
+    String patientId;
     @Builder.Default
     @Column(name = "status", nullable = false)
     AppointmentStatus status = AppointmentStatus.PENDING;

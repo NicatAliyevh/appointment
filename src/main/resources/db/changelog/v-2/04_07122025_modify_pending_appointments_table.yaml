@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04_07122025_modify_pending_appointments_table
+      author: Nijat Alizada
+      changes:
+        - renameColumn:
+            tableName: pending_appointments
+            oldColumnName: doctor_email
+            newColumnName: doctor_id
+            columnDataType: VARCHAR(50)
+        - renameColumn:
+            tableName: pending_appointments
+            oldColumnName: patient_email
+            newColumnName: patient_id
+            columnDataType: VARCHAR(50)
+        - addDefaultValue:
+            tableName: pending_appointments
+            columnName: status
+            defaultValue: 'PENDING'

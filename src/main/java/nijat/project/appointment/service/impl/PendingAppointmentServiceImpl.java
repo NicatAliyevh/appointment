@@ -89,18 +89,37 @@ public class PendingAppointmentServiceImpl implements PendingAppointmentService 
     }
 
     @Override
-    public SuccessResponseDto<Void> rejectAppointment(String appointmentId, String userId) {
-        PendingAppointmentContextDto pendingAppointmentContext = validateAndLoadPendingAppointmentContext(appointmentId, userId);
-        UserEntity doctor = pendingAppointmentContext.getDoctor();
-        UserEntity patient = pendingAppointmentContext.getPatient();
-        PendingAppointmentEntity pendingAppointment = pendingAppointmentContext.getPendingAppointment();
+    public SuccessResponseDto<Void> cancelAppointment(String appointmentId, String userId) {
+        UUID id = parse(userId);
+        if(userRepository.findById(id).isEmpty()) {
+            throw new ResourceNotFoundException("User with this id: " + id + " not found");
+        }
+
+        UUID parsedAppointmentId = parse(appointmentId);
+        PendingAppointmentEntity pendingAppointment = pendingAppointmentRepository.findById(parsedAppointmentId).orElseThrow(
+                () -> new ResourceNotFoundException("No pending appointment with this id: " + parsedAppointmentId + " found")
+        );
+        UUID patientId = parse(pendingAppointment.getPatientId());
+        UUID doctorId = parse(pendingAppointment.getDoctorId());
+
+        UserEntity doctor = userRepository.findByIdAndUserRole(doctorId, UserRole.DOCTOR).orElseThrow(
+                () -> new ResourceNotFoundException("Doctor with this id: " + doctorId + " not found"));
+        UserEntity patient = userRepository.findByIdAndUserRole(patientId, UserRole.PATIENT).orElseThrow(
+                () -> new ResourceNotFoundException("Patient with this id: " + patientId + " not found"));
+
+        if(!id.equals(patient.getId()) && !id.equals(doctor.getId())) {
+            throw new UnauthorizedException("You are not authorized to perform this request");
+        }
 
         pendingAppointmentRepository.delete(pendingAppointment);
 
-        emailService.sendAppointmentRejection(patient.getEmail(), doctor.getUsername(), patient.getUsername(),
-                pendingAppointment.getAppointmentDate(), pendingAppointment.getAppointmentTime());
+        if(id.equals(doctor.getId())) {
+            emailService.sendAppointmentRejection(patient.getEmail(), doctor.getUsername(), patient.getUsername(),
+                    pendingAppointment.getAppointmentDate(), pendingAppointment.getAppointmentTime());
+            return SuccessResponseDto.of("The appointment has been rejected");
+        }
 
-        return SuccessResponseDto.of("The appointment has been rejected");
+        return SuccessResponseDto.of("The appointment has been cancelled");
     }
 
     public PendingAppointmentContextDto validateAndLoadPendingAppointmentContext(String appointmentId, String userId){

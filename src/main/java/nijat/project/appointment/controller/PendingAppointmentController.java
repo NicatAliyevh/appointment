@@ -1,5 +1,6 @@
 package nijat.project.appointment.controller;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nijat.project.appointment.model.dto.request.PendingAppointmentRequestDto;
@@ -22,6 +23,7 @@ public class PendingAppointmentController {
 
     private  final PendingAppointmentService pendingAppointmentService;
 
+    @RateLimiter(name = "appointment-rate-limiter")
     @PreAuthorize("hasAuthority('PATIENT')")
     @PostMapping("/request")
     public ResponseEntity<SuccessResponseDto<Void>> requestAppointment(@Valid @RequestBody PendingAppointmentRequestDto pendingAppointmentRequestDto,
@@ -36,10 +38,9 @@ public class PendingAppointmentController {
         return new ResponseEntity<>(pendingAppointmentService.approveAppointment(appointmentId, principal.getName()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('DOCTOR')")
-    @PostMapping("/reject/{appointmentId}")
-    public ResponseEntity<SuccessResponseDto<Void>> rejectAppointment(@PathVariable String appointmentId,
+    @PostMapping("/cancel/{appointmentId}")
+    public ResponseEntity<SuccessResponseDto<Void>> cancelAppointment(@PathVariable String appointmentId,
                                                                       Principal principal){
-        return new ResponseEntity<>(pendingAppointmentService.rejectAppointment(appointmentId, principal.getName()), HttpStatus.OK);
+        return new ResponseEntity<>(pendingAppointmentService.cancelAppointment(appointmentId, principal.getName()), HttpStatus.OK);
     }
 }

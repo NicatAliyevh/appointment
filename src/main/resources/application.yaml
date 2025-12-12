@@ -32,6 +32,10 @@ resilience4j:
         limitForPeriod: 5
         limitRefreshPeriod: 120s
         timeoutDuration: 100ms
+      appointment-rate-limiter:
+        limitForPeriod: 3
+        limitRefreshPeriod: 120s
+        timeoutDuration: 100ms
 
 logging:
   level:

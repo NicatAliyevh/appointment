@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 05_12122025_create_email_update_tokens_table
+      author: Nijat Alizada
+      changes:
+        - createTable:
+            tableName: email_update_tokens
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: token
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: email
+            tableName: email_update_tokens
+            constraintName: uk_email_update_token_email
+        - addUniqueConstraint:
+            columnNames: token
+            tableName: email_update_tokens
+            constraintName: uk_email_update_token_token

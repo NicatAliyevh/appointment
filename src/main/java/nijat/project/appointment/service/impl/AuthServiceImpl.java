@@ -63,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenEntity.setExpiryDate(LocalDateTime.now().plusMinutes(5));
         verificationTokenRepository.save(verificationTokenEntity);
 
-        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getUsername(), code);
+        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getUsername(), code, false);
 
         return SuccessResponseDto.of("Verification code has been sent to your email address");
     }
@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         var user = UserEntity.builder()
                 .email(verificationTokenEntity.getEmail())
                 .username(verificationTokenEntity.getUsername())
-                .password(bCryptPasswordEncoder.encode(verificationTokenEntity.getPassword()))
+                .password(verificationTokenEntity.getPassword())
                 .userRole(verificationTokenEntity.getUserRole())
                 .build();
 
@@ -107,10 +107,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SuccessResponseDto<UserAuthResponseDto> login(UserLoginRequestDto userLoginRequestDto) {
         UserEntity user = userRepository.findByEmail(userLoginRequestDto.getEmail()).orElseThrow(
-                () -> new InvalidCredentialsException("Email or password is invalid")
+                () -> new InvalidCredentialsException("Email or password is invalid.")
         );
 
         try{
+            System.out.println(userLoginRequestDto.getPassword());
+            System.out.println(user.getPassword());
             UUID userId = user.getId();
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -169,8 +171,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if(!resetPasswordRequestDto.getToken().equals(passwordResetTokenEntity.getToken())) {
-            System.out.println("from repo: " + passwordResetTokenEntity.getToken());
-            System.out.println("from user: " + resetPasswordRequestDto.getToken());
             throw new InvalidCredentialsException("Invalid token");
         }
 

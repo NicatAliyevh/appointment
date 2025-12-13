@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS pending_appointments;
 DROP TABLE IF EXISTS password_reset_tokens;
 DROP TABLE IF EXISTS verification_tokens;
+DROP TABLE IF EXISTS email_update_tokens
 
 DROP TABLE IF EXISTS users;
 

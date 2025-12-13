@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public interface EmailService {
-    void sendVerificationCode(String to, String name, String code);
+    void sendVerificationCode(String to, String name, String code, Boolean isEmailUpdate);
     void sendPasswordResetLink(String to, String name, String token);
     void sendAppointmentRequest(String to, String doctorName, String patientName,
                                 LocalDate appointmentDate, LocalTime appointmentTime);
@@ -13,5 +13,4 @@ public interface EmailService {
 
     void sendAppointmentRejection(String to, String doctorName, String patientName,
                                  LocalDate appointmentDate, LocalTime appointmentTime);
-
 }

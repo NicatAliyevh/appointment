@@ -26,11 +26,12 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
 
-    public void sendVerificationCode(String to, String name, String code) {
+    public void sendVerificationCode(String to, String name, String code, Boolean isEmailUpdate) {
         try{
             Context context = new Context();
             context.setVariable("username", name);
             context.setVariable("verificationCode", code);
+            context.setVariable("isEmailUpdate", isEmailUpdate);
 
             String htmlContent = templateEngine.process("verification-email", context);
 

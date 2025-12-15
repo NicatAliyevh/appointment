@@ -48,6 +48,8 @@ public class UserEntity {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     Instant updatedAt;
+    @Column(name = "password_changed_at")
+    Instant passwordChangedAt;
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)

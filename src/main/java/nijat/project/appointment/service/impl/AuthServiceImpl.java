@@ -35,7 +35,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -43,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EmailService emailService;
-
 
     @Override
     public SuccessResponseDto<Void> register(UserRegisterRequestDto userRegisterRequestDto) {

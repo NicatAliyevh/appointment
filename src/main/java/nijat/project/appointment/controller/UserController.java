@@ -3,9 +3,11 @@ package nijat.project.appointment.controller;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import nijat.project.appointment.model.dto.request.UpdateEmailRequestDto;
-import nijat.project.appointment.model.dto.request.UpdateEmailVerificationRequestDto;
+import nijat.project.appointment.model.dto.request.EmailChangeRequestDto;
+import nijat.project.appointment.model.dto.request.EmailChangeVerificationRequestDto;
+import nijat.project.appointment.model.dto.request.PasswordChangeRequestDto;
 import nijat.project.appointment.model.dto.request.UpdateProfileRequestDto;
+import nijat.project.appointment.model.dto.response.PasswordChangeResponseDto;
 import nijat.project.appointment.model.dto.response.SuccessResponseDto;
 import nijat.project.appointment.model.dto.response.UserResponseDto;
 import nijat.project.appointment.service.UserService;
@@ -37,15 +39,21 @@ public class UserController {
 
     @RateLimiter(name = "auth-rate-limiter")
     @PutMapping("/email")
-    public ResponseEntity<SuccessResponseDto<Void>> updateMyEmail(Principal principal,
-                                                                  @Valid @RequestBody UpdateEmailRequestDto updateEmailRequestDto) {
-        return new ResponseEntity<>(userService.updateMyEmail(principal.getName(), updateEmailRequestDto), HttpStatus.OK);
+    public ResponseEntity<SuccessResponseDto<Void>> changeMyEmail(Principal principal,
+                                                                  @Valid @RequestBody EmailChangeRequestDto emailChangeRequestDto) {
+        return new ResponseEntity<>(userService.changeMyEmail(principal.getName(), emailChangeRequestDto), HttpStatus.OK);
     }
 
     @RateLimiter(name = "auth-rate-limiter")
     @PutMapping("/email/verify")
     public ResponseEntity<SuccessResponseDto<Void>> verifyMyEmail(Principal principal,
-                                                                  @Valid @RequestBody UpdateEmailVerificationRequestDto updateEmailVerificationRequestDto) {
-        return new ResponseEntity<>(userService.verifyMyEmail(principal.getName(), updateEmailVerificationRequestDto), HttpStatus.OK);
+                                                                  @Valid @RequestBody EmailChangeVerificationRequestDto emailChangeVerificationRequestDto) {
+        return new ResponseEntity<>(userService.verifyMyEmail(principal.getName(), emailChangeVerificationRequestDto), HttpStatus.OK);
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<SuccessResponseDto<PasswordChangeResponseDto>> changeMyPassword(Principal principal,
+                                                                                          @Valid @RequestBody PasswordChangeRequestDto passwordChangeRequestDto) {
+        return new ResponseEntity<>(userService.changeMyPassword(principal.getName(), passwordChangeRequestDto), HttpStatus.OK);
     }
 }

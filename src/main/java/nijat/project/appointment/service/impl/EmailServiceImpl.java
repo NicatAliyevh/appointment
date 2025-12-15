@@ -147,4 +147,26 @@ public class EmailServiceImpl implements EmailService {
             log.error("Error sending email to {}", to, e);
         }
     }
+
+    @Override
+    public void sendPasswordChanged(String to, String name) {
+        try{
+            Context context = new Context();
+            context.setVariable("username", name);
+
+            String htmlContent = templateEngine.process("change-password-email", context);
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("Hospital-Management System Password Update");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e){
+            log.error("Error sending email to {}", to, e);
+        }
+    }
 }

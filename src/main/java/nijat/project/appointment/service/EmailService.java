@@ -13,4 +13,6 @@ public interface EmailService {
 
     void sendAppointmentRejection(String to, String doctorName, String patientName,
                                  LocalDate appointmentDate, LocalTime appointmentTime);
+    void sendPasswordChanged(String to, String name);
+
 }

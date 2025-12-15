@@ -81,6 +81,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(customEx, HttpStatus.TOO_MANY_REQUESTS, request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
+                                                                        HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             Exception ex, HttpStatus status, HttpServletRequest request) {
         String sanitizedMessage = HtmlUtils.htmlEscape(ex.getMessage());
